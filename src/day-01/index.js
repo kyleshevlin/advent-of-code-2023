@@ -1,6 +1,6 @@
-const { getData, sum } = require('../utils')
+const { getInput, sum } = require('../utils')
 
-const data = getData(__dirname)
+const data = getInput(__dirname)
 
 const formatInput = input => input.trim().split('\n')
 
@@ -33,7 +33,7 @@ const WORD_TO_DIGIT = {
   zero: 0,
 }
 
-const coerceToDigit = numOrWord => {
+const getDigit = numOrWord => {
   const num = parseInt(numOrWord, 10)
 
   if (!isNaN(num)) return num
@@ -41,7 +41,7 @@ const coerceToDigit = numOrWord => {
   return WORD_TO_DIGIT[numOrWord]
 }
 
-const strReverse = str => str.split('').toReversed().join('')
+const reverseStr = str => str.split('').toReversed().join('')
 
 function solution2(input) {
   const lines = formatInput(input)
@@ -50,11 +50,11 @@ function solution2(input) {
     const [first] = line.match(
       /[0-9]|one|two|three|four|five|six|seven|eight|nine|zero/
     )
-    const [second] = strReverse(line).match(
+    const [second] = reverseStr(line).match(
       /[0-9]|eno|owt|eerht|ruof|evif|xis|neves|thgie|enin|orez/
     )
 
-    return Number(`${coerceToDigit(first)}${coerceToDigit(strReverse(second))}`)
+    return Number(`${getDigit(first)}${getDigit(reverseStr(second))}`)
   })
 
   return sum(nums)

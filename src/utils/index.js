@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-function getData(dir) {
+function getInput(dir) {
   return fs.readFileSync(path.resolve(dir, './input.txt'), {
     encoding: 'utf-8',
   })
@@ -362,7 +362,7 @@ module.exports = {
   divide,
   drawGrid,
   findLastIndex,
-  getData,
+  getInput,
   getLineIntersection,
   getManhattanDistance,
   intersection,
