@@ -1,4 +1,4 @@
-const { solution1, solution2 } = require('./')
+const { solution1, solution2 } = require('.')
 
 const input = `input data for day 09`
 
