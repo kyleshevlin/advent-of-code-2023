@@ -7,30 +7,51 @@ const formatInput = input =>
     .trim()
     .split('\n')
     .reduce((acc, line) => {
-      const [gameStr, pullsStr] = line.split(': ')
-      const id = gameStr.replace('Game ', '')
-      const pulls = pullsStr.split('; ')
-
-      const results = pulls.map(pull => {
-        const cubes = pull.split(', ')
-
-        const result = {
-          blue: 0,
-          green: 0,
-          red: 0,
-        }
-
-        for (const cube of cubes) {
-          const [int, color] = cube.split(' ')
-          result[color] = parseInt(int, 10)
-        }
-
-        return result
-      })
+      const { id, results } = getGameResults(line)
 
       acc[id] = results
+
       return acc
     }, {})
+
+/**
+ * Parse a game (a line from the input) into its `id` and into objects
+ * representing each pull from the bag of cubes.
+ *
+ * Input: 'Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green'
+ * Output: {
+ *   id: '1',
+ *   results: [
+ *     { blue: 3, green: 0, red: 4 },
+ *     { blue: 0, green: 2, red: 1 },
+ *     { blue: 6, green: 2, red: 0 }
+ *   ],
+ * }
+ */
+const getGameResults = game => {
+  const [gameStr, pullsStr] = game.split(': ')
+  const id = gameStr.replace('Game ', '')
+  const pulls = pullsStr.split('; ')
+
+  const results = pulls.map(pull => {
+    const cubes = pull.split(', ')
+
+    const result = {
+      blue: 0,
+      green: 0,
+      red: 0,
+    }
+
+    cubes.forEach(cube => {
+      const [int, color] = cube.split(' ')
+      result[color] = parseInt(int, 10)
+    })
+
+    return result
+  })
+
+  return { id, results }
+}
 
 const BAG = {
   blue: 14,
