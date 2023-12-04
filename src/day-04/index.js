@@ -33,20 +33,7 @@ function solution2(input) {
 
   const copiesMap = {}
 
-  let idx = 0
-  for (idx; idx < cards.length; idx++) {
-    const original = cards[idx]
-    processCard(original, idx)
-
-    const copies = copiesMap[original.id]
-
-    if (copies) {
-      for (let i = 0; i < copies; i++) {
-        processCard(original, idx)
-      }
-    }
-  }
-
+  // Keeping this in scope so I don't have to pass `cards` or `copiesMap` into it
   function processCard(card, cardIdx) {
     const matches = findMatches(card)
 
@@ -64,6 +51,20 @@ function solution2(input) {
 
         copiesMap[id]++
       })
+  }
+
+  let idx = 0
+  for (idx; idx < cards.length; idx++) {
+    const original = cards[idx]
+    processCard(original, idx)
+
+    const copies = copiesMap[original.id]
+
+    if (copies) {
+      for (let i = 0; i < copies; i++) {
+        processCard(original, idx)
+      }
+    }
   }
 
   return cards.length + sum(Object.values(copiesMap))
