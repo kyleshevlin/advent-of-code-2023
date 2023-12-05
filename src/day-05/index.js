@@ -40,54 +40,97 @@ const formatInput = input => {
   return result
 }
 
-const parseSection = (section, heading) => {
-  const ranges = section.replace(heading, '').trim().split('\n').map(parseRange)
+class Range {
+  constructor(start, length) {
+    this.start = start
+    this.length = length
+    this.end = start + length - 1
+  }
 
-  const cache = {}
-
-  return {
-    ranges,
-    getNextKey(key) {
-      if (cache[key] !== undefined) return cache[key]
-
-      for (const range of ranges) {
-        const nextKey = range.getNextKey(key)
-
-        if (nextKey === key) continue
-
-        cache[key] = nextKey
-        return nextKey
-      }
-
-      cache[key] = key
-      return key
-    },
+  contains(value) {
+    return value >= this.start && value <= this.end
   }
 }
 
-const parseRange = line => {
-  const [destStart, srcStart, length] = line.split(' ').map(Number)
+class RangeMap {
+  #cache = {}
+  #offset
 
-  const cache = {}
-
-  return {
-    destStart,
-    srcStart,
-    length,
-    getNextKey(key) {
-      if (cache[key] !== undefined) return cache[key]
-
-      if (key >= srcStart && key <= srcStart + length - 1) {
-        const nextKey = destStart + (key - srcStart)
-
-        cache[key] = nextKey
-        return nextKey
-      }
-
-      cache[key] = key
-      return key
-    },
+  constructor(dest, src, length) {
+    this.srcRange = new Range(src, length)
+    this.destRange = new Range(dest, length)
+    this.#offset = dest - src
   }
+
+  #isInCache(key) {
+    return this.#cache[key] !== undefined
+  }
+
+  #getFromCache(key) {
+    return this.#cache[key]
+  }
+
+  #saveInCache(key, value) {
+    this.#cache[key] = value
+  }
+
+  getNextKey(key) {
+    if (this.#isInCache(key)) return this.#getFromCache(key)
+
+    if (this.srcRange.contains(key)) {
+      const nextKey = key + this.#offset
+
+      this.#saveInCache(key, nextKey)
+      return nextKey
+    }
+
+    this.#saveInCache(key, key)
+    return key
+  }
+}
+
+class RangeGroup {
+  #cache = {}
+
+  constructor(lines) {
+    this.rangeMaps = lines.map(line => {
+      const [dest, src, length] = line.split(' ').map(Number)
+      return new RangeMap(dest, src, length)
+    })
+  }
+
+  #isInCache(key) {
+    return this.#cache[key] !== undefined
+  }
+
+  #getFromCache(key) {
+    return this.#cache[key]
+  }
+
+  #saveInCache(key, value) {
+    this.#cache[key] = value
+  }
+
+  getNextKey(key) {
+    if (this.#isInCache(key)) return this.#getFromCache(key)
+
+    for (const map of this.rangeMaps) {
+      const nextKey = map.getNextKey(key)
+
+      if (nextKey === key) continue
+
+      this.#saveInCache(key, nextKey)
+      return nextKey
+    }
+
+    this.#saveInCache(key, key)
+    return key
+  }
+}
+
+const parseSection = (section, heading) => {
+  const ranges = section.replace(heading, '').trim().split('\n')
+  return new RangeGroup(ranges)
 }
 
 function solution1(input) {
@@ -161,9 +204,9 @@ function solution2(input) {
   const cache = {}
 
   let lowest = Infinity
-  for (const seed of seeds) {
+  for (const seedRange of seeds) {
     // LOL, this won't work for the actual data
-    for (let i = seed.start; i < seed.start + seed.length; i++) {
+    for (let i = seedRange.start; i < seedRange.end; i++) {
       if (cache[i] !== undefined) {
         // Don't even need to calculate it because if it's lowest, it'll already
         // be stored
@@ -196,7 +239,7 @@ function makeSeedRanges(seeds) {
     const start = clone.shift()
     const length = clone.shift()
 
-    result.push({ start, length })
+    result.push(new Range(start, length))
   }
 
   return result
@@ -209,6 +252,5 @@ function makeSeedRanges(seeds) {
 module.exports = {
   solution1,
   solution2,
-  parseRange,
   parseSection,
 }

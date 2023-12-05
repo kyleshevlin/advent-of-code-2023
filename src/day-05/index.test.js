@@ -1,4 +1,4 @@
-const { solution1, solution2, parseRange, parseSection } = require('.')
+const { solution1, solution2, parseSection } = require('.')
 
 const input = `
 seeds: 79 14 55 13
@@ -44,18 +44,6 @@ test('solution2', () => {
   expect(solution2(input)).toEqual(46)
 })
 
-test('parseRange', () => {
-  const range = parseRange('50 98 2')
-
-  expect(range.destStart).toEqual(50)
-  expect(range.srcStart).toEqual(98)
-  expect(range.length).toEqual(2)
-  expect(range.getNextKey(97)).toEqual(97)
-  expect(range.getNextKey(98)).toEqual(50)
-  expect(range.getNextKey(99)).toEqual(51)
-  expect(range.getNextKey(100)).toEqual(100)
-})
-
 test('parseSection', () => {
   const section = parseSection(
     `
@@ -66,7 +54,6 @@ seed-to-soil map:
     'seed-to-soil map:'
   )
 
-  expect(section.ranges.length).toEqual(2)
   expect(section.getNextKey(49)).toEqual(49)
   expect(section.getNextKey(50)).toEqual(52)
   expect(section.getNextKey(53)).toEqual(55)
