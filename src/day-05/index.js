@@ -44,17 +44,23 @@ const formatInput = input => {
 const parseSection = (section, heading) => {
   const ranges = section.replace(heading, '').trim().split('\n').map(parseRange)
 
+  const cache = {}
+
   return {
     ranges,
     getNextKey(key) {
+      if (cache[key] !== undefined) return cache[key]
+
       for (const range of ranges) {
         const nextKey = range.getNextKey(key)
 
         if (nextKey === key) continue
 
+        cache[key] = nextKey
         return nextKey
       }
 
+      cache[key] = key
       return key
     },
   }
@@ -63,17 +69,23 @@ const parseSection = (section, heading) => {
 const parseRange = line => {
   const [destStart, srcStart, length] = line.split(' ').map(Number)
 
-  // would be good to have methods that could check a range if a value should be found in it
+  const cache = {}
 
   return {
     destStart,
     srcStart,
     length,
     getNextKey(key) {
+      if (cache[key] !== undefined) return cache[key]
+
       if (key >= srcStart && key <= srcStart + length - 1) {
-        return destStart + (key - srcStart)
+        const nextKey = destStart + (key - srcStart)
+
+        cache[key] = nextKey
+        return nextKey
       }
 
+      cache[key] = key
       return key
     },
   }
@@ -151,16 +163,26 @@ function solution2(input) {
     humidtyToLocationMap,
   ]
 
+  const cache = {}
+
   let lowest = Infinity
   for (const seed of seeds) {
     // LOL, this won't work for the actual data
     for (let i = seed.start; i < seed.start + seed.length; i++) {
+      if (cache[i] !== undefined) {
+        // Don't even need to calculate it because if it's lowest, it'll already
+        // be stored
+        continue
+      }
+
       let result = i
 
       for (const map of order) {
         const nextKey = map.getNextKey(result)
         result = nextKey
       }
+
+      cache[i] = result
 
       if (result < lowest) {
         lowest = result
