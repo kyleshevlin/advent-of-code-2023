@@ -244,7 +244,7 @@ function makeSeedRanges(seeds) {
 
 // console.log(solution1(data)) // 331445006
 
-console.log(solution2(data))
+// console.log(solution2(data))
 
 module.exports = {
   solution1,
