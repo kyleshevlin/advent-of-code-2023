@@ -43,7 +43,6 @@ const formatInput = input => {
 class Range {
   constructor(start, length) {
     this.start = start
-    this.length = length
     this.end = start + length - 1
   }
 
