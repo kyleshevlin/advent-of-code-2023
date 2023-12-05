@@ -157,8 +157,7 @@ function solution1(input) {
     humidtyToLocationMap,
   ]
 
-  let lowest = Infinity
-  for (const seed of seeds) {
+  const locations = seeds.map(seed => {
     let result = seed
 
     for (const map of order) {
@@ -166,12 +165,10 @@ function solution1(input) {
       result = nextKey
     }
 
-    if (result < lowest) {
-      lowest = result
-    }
-  }
+    return result
+  })
 
-  return lowest
+  return Math.min(...locations)
 }
 
 function solution2(input) {
@@ -208,8 +205,8 @@ function solution2(input) {
     // LOL, this won't work for the actual data
     for (let i = seedRange.start; i < seedRange.end; i++) {
       if (cache[i] !== undefined) {
-        // Don't even need to calculate it because if it's lowest, it'll already
-        // be stored
+        // Don't even need to calculate it because if it's lowest,
+        // it'll already be stored
         continue
       }
 
