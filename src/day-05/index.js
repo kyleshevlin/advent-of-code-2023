@@ -92,11 +92,8 @@ class RangeMap {
 class RangeGroup {
   #cache = {}
 
-  constructor(lines) {
-    this.rangeMaps = lines.map(line => {
-      const [dest, src, length] = line.split(' ').map(Number)
-      return new RangeMap(dest, src, length)
-    })
+  constructor(rangeMaps) {
+    this.rangeMaps = rangeMaps
   }
 
   #isInCache(key) {
@@ -129,8 +126,16 @@ class RangeGroup {
 }
 
 const parseSection = (section, heading) => {
-  const ranges = section.replace(heading, '').trim().split('\n')
-  return new RangeGroup(ranges)
+  const ranges = section
+    .replace(heading, '')
+    .trim()
+    .split('\n')
+    .map(line => line.split(' ').map(Number))
+  const rangeMaps = ranges
+    .map(range => new RangeMap(...range))
+    .toSorted((a, b) => a.start - b.start)
+
+  return new RangeGroup(rangeMaps)
 }
 
 function solution1(input) {
@@ -161,8 +166,7 @@ function solution1(input) {
     let result = seed
 
     for (const map of order) {
-      const nextKey = map.getNextKey(result)
-      result = nextKey
+      result = map.getNextKey(result)
     }
 
     return result
@@ -200,32 +204,28 @@ function solution2(input) {
 
   const cache = {}
 
-  let lowest = Infinity
-  for (const seedRange of seeds) {
-    // LOL, this won't work for the actual data
-    for (let i = seedRange.start; i < seedRange.end; i++) {
-      if (cache[i] !== undefined) {
-        // Don't even need to calculate it because if it's lowest,
-        // it'll already be stored
-        continue
+  const locations = seeds.flatMap(seedRange => {
+    const results = []
+
+    for (let seed = seedRange.start; seed < seedRange.end; seed++) {
+      if (cache[seed] !== undefined) {
+        results.push(cache[seed])
       }
 
-      let result = i
+      let result = seed
 
       for (const map of order) {
-        const nextKey = map.getNextKey(result)
-        result = nextKey
+        result = map.getNextKey(result)
       }
 
-      cache[i] = result
-
-      if (result < lowest) {
-        lowest = result
-      }
+      cache[seed] = result
+      results.push(result)
     }
-  }
 
-  return lowest
+    return results
+  })
+
+  return Math.min(...locations)
 }
 
 function makeSeedRanges(seeds) {
@@ -244,7 +244,7 @@ function makeSeedRanges(seeds) {
 
 // console.log(solution1(data)) // 331445006
 
-// console.log(solution2(data))
+console.log(solution2(data))
 
 module.exports = {
   solution1,
