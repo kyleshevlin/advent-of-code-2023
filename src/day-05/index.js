@@ -17,7 +17,6 @@ const formatInput = input => {
   const result = {}
 
   result.seeds = seeds.split(': ')[1].split(' ').map(Number)
-
   result.seedToSoilMap = parseSection(seedToSoil, 'seed-to-soil map:')
   result.soilToFertilizerMap = parseSection(
     soilToFertilizer,
@@ -129,17 +128,13 @@ function solution1(input) {
     }
   }
 
-  // if a seed number is not found in a map, then the number of the corresponding
-  // value is the same. So if we have seed 0 and the seed-to-soil map does not have
-  // a key of 0, then its soil number is _also_ 0.
-
   return lowest
 }
 
 function solution2(input) {
   const formatted = formatInput(input)
 
-  // adjust the seeds
+  // adjust the seeds for part 2
   formatted.seeds = makeSeedRanges(formatted.seeds)
 
   const {
