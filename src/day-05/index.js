@@ -46,19 +46,28 @@ class Range {
     this.end = start + length - 1
   }
 
-  contains(value) {
+  has(value) {
     return value >= this.start && value <= this.end
+  }
+
+  static intersection(r1, r2) {
+    const start = Math.max(r1.start, r2.start)
+    const end = Math.min(r1.end, r2.end)
+
+    if (end < start) return null
+
+    // Need to add one to be inclusive of the end
+    return new Range(start, end + 1 - start)
   }
 }
 
 class RangeMap {
   #cache = {}
-  #offset
 
   constructor(dest, src, length) {
     this.srcRange = new Range(src, length)
     this.destRange = new Range(dest, length)
-    this.#offset = dest - src
+    this.offset = dest - src
   }
 
   #isInCache(key) {
@@ -76,8 +85,8 @@ class RangeMap {
   getNextKey(key) {
     if (this.#isInCache(key)) return this.#getFromCache(key)
 
-    if (this.srcRange.contains(key)) {
-      const nextKey = key + this.#offset
+    if (this.srcRange.has(key)) {
+      const nextKey = key + this.offset
 
       this.#saveInCache(key, nextKey)
       return nextKey
@@ -174,6 +183,20 @@ function solution1(input) {
   return Math.min(...locations)
 }
 
+function makeSeedRanges(seeds) {
+  const clone = [...seeds]
+  const result = []
+
+  while (clone.length) {
+    const start = clone.shift()
+    const length = clone.shift()
+
+    result.push(new Range(start, length))
+  }
+
+  return result
+}
+
 function solution2(input) {
   const formatted = formatInput(input)
 
@@ -227,20 +250,6 @@ function solution2(input) {
   return Math.min(...locations)
 }
 
-function makeSeedRanges(seeds) {
-  const clone = [...seeds]
-  const result = []
-
-  while (clone.length) {
-    const start = clone.shift()
-    const length = clone.shift()
-
-    result.push(new Range(start, length))
-  }
-
-  return result
-}
-
 // console.log(solution1(data)) // 331445006
 
 // console.log(solution2(data))
@@ -249,4 +258,5 @@ module.exports = {
   solution1,
   solution2,
   parseSection,
+  Range,
 }
