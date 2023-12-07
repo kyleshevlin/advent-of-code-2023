@@ -33,13 +33,11 @@ function getRaces(times, distances) {
 }
 
 function getRaceResults(race) {
-  const total = race.time
-
   const results = []
 
-  for (let i = 0; i <= total; i++) {
+  for (let i = 0; i <= race.time; i++) {
     const speed = i * 1
-    const time = total - i
+    const time = race.time - i
     const distance = speed * time
 
     results.push({ distance })
@@ -53,33 +51,29 @@ function solution1(input) {
   const { times, distances } = getTimesAndDistances(timesLine, distancesLine)
   const races = getRaces(times, distances)
 
-  const winningWays = races
-    .map(race =>
+  const wins = races.map(
+    race =>
       getRaceResults(race).filter(result => result.distance > race.distance)
-    )
-    .map(winners => winners.length)
+        .length
+  )
 
-  return product(winningWays)
+  return product(wins)
 }
 
 // console.log(solution1(data)) // 449820
 
-function getTimesAndDistancesPart2(timesLine, distancesLine) {
-  const times = Number(timesLine.replace(/Time:\s+/, '').replaceAll(' ', ''))
-  const distances = Number(
+function getRacePart2(timesLine, distancesLine) {
+  const time = Number(timesLine.replace(/Time:\s+/, '').replaceAll(' ', ''))
+  const distance = Number(
     distancesLine.replace(/Distance:\s+/, '').replaceAll(' ', '')
   )
 
-  return { times, distances }
+  return { time, distance }
 }
 
 function solution2(input) {
   const [timesLine, distancesLine] = formatInput(input)
-  const { times: time, distances: distance } = getTimesAndDistancesPart2(
-    timesLine,
-    distancesLine
-  )
-  const race = { time, distance }
+  const race = getRacePart2(timesLine, distancesLine)
 
   return getRaceResults(race).filter(result => result.distance > race.distance)
     .length
