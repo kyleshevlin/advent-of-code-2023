@@ -351,6 +351,29 @@ function findLastIndex(arr, fn) {
   return clone.length - 1 - index
 }
 
+/**
+ * I'm leaving a note here to my future self: This is a clever, immutable, recursive
+ * 1-line version of GCD.
+ *
+ * The first version I saw looked like this:
+ * ```javascript
+ * function gcd(a, b) {
+ *   let tmp = b
+ *
+ *   while (b !== 0) {
+ *     b = a % b
+ *     a = tmp
+ *     tmp = b
+ *   }
+ *
+ *   return a
+ * }
+ * ```
+ */
+const gcd = (a, b) => (a ? gcd(b % a, a) : b)
+
+const lcm = (a, b) => (a * b) / gcd(a, b)
+
 module.exports = {
   add,
   createPriorityQueue,
@@ -362,11 +385,13 @@ module.exports = {
   divide,
   drawGrid,
   findLastIndex,
+  gcd,
   getInput,
   getLineIntersection,
   getManhattanDistance,
   intersection,
   isDisjoint,
+  lcm,
   map,
   multiply,
   pipe,
