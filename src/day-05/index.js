@@ -2,42 +2,13 @@ const { getInput } = require('../utils')
 
 const data = getInput(__dirname)
 
-const formatInput = input => {
-  const [
-    seeds,
-    seedToSoil,
-    soilToFertilizer,
-    fertilizerToWater,
-    waterToLight,
-    lightToTemp,
-    tempToHumidity,
-    humidtyToLocation,
-  ] = input.trim().split('\n\n')
+const formatInputPart1 = input => {
+  const [seeds, ...maps] = input.trim().split('\n\n')
 
-  const result = {}
-
-  result.seeds = seeds.split(': ')[1].split(' ').map(Number)
-  result.seedToSoilMap = parseSection(seedToSoil, 'seed-to-soil map:')
-  result.soilToFertilizerMap = parseSection(
-    soilToFertilizer,
-    'soil-to-fertlizer map:'
-  )
-  result.fertilizerToWaterMap = parseSection(
-    fertilizerToWater,
-    'fertilizer-to-water map:'
-  )
-  result.waterToLightMap = parseSection(waterToLight, 'water-to-light map:')
-  result.lightToTempMap = parseSection(lightToTemp, 'light-to-temperature map:')
-  result.tempToHumidityMap = parseSection(
-    tempToHumidity,
-    'temp-to-humidity map:'
-  )
-  result.humidtyToLocationMap = parseSection(
-    humidtyToLocation,
-    'humidity-to-location map:'
-  )
-
-  return result
+  return {
+    seeds: seeds.split(': ').at(1).split(' ').map(Number),
+    maps: maps.map(parseMap),
+  }
 }
 
 class Range {
@@ -49,93 +20,42 @@ class Range {
   has(value) {
     return value >= this.start && value <= this.end
   }
-
-  static intersection(r1, r2) {
-    const start = Math.max(r1.start, r2.start)
-    const end = Math.min(r1.end, r2.end)
-
-    if (end < start) return null
-
-    // Need to add one to be inclusive of the end
-    return new Range(start, end + 1 - start)
-  }
 }
 
 class RangeMap {
-  #cache = {}
-
   constructor(dest, src, length) {
     this.srcRange = new Range(src, length)
     this.destRange = new Range(dest, length)
     this.offset = dest - src
   }
 
-  #isInCache(key) {
-    return this.#cache[key] !== undefined
-  }
-
-  #getFromCache(key) {
-    return this.#cache[key]
-  }
-
-  #saveInCache(key, value) {
-    this.#cache[key] = value
-  }
-
-  getNextKey(key) {
-    if (this.#isInCache(key)) return this.#getFromCache(key)
-
-    if (this.srcRange.has(key)) {
-      const nextKey = key + this.offset
-
-      this.#saveInCache(key, nextKey)
-      return nextKey
-    }
-
-    this.#saveInCache(key, key)
-    return key
+  getValue(key) {
+    return this.srcRange.has(key) ? key + this.offset : null
   }
 }
 
 class RangeGroup {
-  #cache = {}
-
   constructor(rangeMaps) {
     this.rangeMaps = rangeMaps
   }
 
-  #isInCache(key) {
-    return this.#cache[key] !== undefined
-  }
-
-  #getFromCache(key) {
-    return this.#cache[key]
-  }
-
-  #saveInCache(key, value) {
-    this.#cache[key] = value
-  }
-
-  getNextKey(key) {
-    if (this.#isInCache(key)) return this.#getFromCache(key)
-
+  getValue(key) {
     for (const map of this.rangeMaps) {
-      const nextKey = map.getNextKey(key)
+      const nextKey = map.getValue(key)
 
-      if (nextKey === key) continue
+      if (!nextKey) continue
 
-      this.#saveInCache(key, nextKey)
       return nextKey
     }
 
-    this.#saveInCache(key, key)
     return key
   }
 }
 
-const parseSection = (section, heading) => {
+const parseMap = section => {
   const ranges = section
-    .replace(heading, '')
+    .split('map:')
+    .at(1)
     .trim()
     .split('\n')
     .map(line => line.split(' ').map(Number))
@@ -147,34 +67,13 @@ const parseSection = (section, heading) => {
 }
 
 function solution1(input) {
-  const formatted = formatInput(input)
-
-  const {
-    seeds,
-    seedToSoilMap,
-    soilToFertilizerMap,
-    fertilizerToWaterMap,
-    waterToLightMap,
-    lightToTempMap,
-    tempToHumidityMap,
-    humidtyToLocationMap,
-  } = formatted
-
-  const order = [
-    seedToSoilMap,
-    soilToFertilizerMap,
-    fertilizerToWaterMap,
-    waterToLightMap,
-    lightToTempMap,
-    tempToHumidityMap,
-    humidtyToLocationMap,
-  ]
+  const { seeds, maps } = formatInputPart1(input)
 
   const locations = seeds.map(seed => {
     let result = seed
 
-    for (const map of order) {
-      result = map.getNextKey(result)
+    for (const map of maps) {
+      result = map.getValue(result)
     }
 
     return result
@@ -184,12 +83,12 @@ function solution1(input) {
 }
 
 function makeSeedRanges(seeds) {
-  const clone = [...seeds]
+  const nums = seeds.split(': ')[1].split(' ').map(Number)
   const result = []
 
-  while (clone.length) {
-    const start = clone.shift()
-    const length = clone.shift()
+  while (nums.length) {
+    const start = nums.shift()
+    const length = nums.shift()
 
     result.push(new Range(start, length))
   }
@@ -197,66 +96,56 @@ function makeSeedRanges(seeds) {
   return result
 }
 
+function parseMapsReverse(section) {
+  const ranges = section
+    .split('map:')
+    .at(1)
+    .trim()
+    .split('\n')
+    .map(line => line.split(' ').map(Number))
+
+  // We're reversing the maps in part 2
+  const rangeMaps = ranges
+    .map(([dest, src, length]) => new RangeMap(src, dest, length))
+    .toSorted((a, b) => a.start - b.start)
+
+  return new RangeGroup(rangeMaps)
+}
+
+function formatInputPart2(input) {
+  const [seeds, ...maps] = input.trim().split('\n\n')
+
+  return {
+    seeds: makeSeedRanges(seeds),
+    maps: maps.toReversed().map(parseMapsReverse),
+  }
+}
+
 function solution2(input) {
-  const formatted = formatInput(input)
+  const { seeds, maps } = formatInputPart2(input)
 
-  // adjust the seeds for part 2
-  formatted.seeds = makeSeedRanges(formatted.seeds)
-
-  const {
-    seeds,
-    seedToSoilMap,
-    soilToFertilizerMap,
-    fertilizerToWaterMap,
-    waterToLightMap,
-    lightToTempMap,
-    tempToHumidityMap,
-    humidtyToLocationMap,
-  } = formatted
-
-  const order = [
-    seedToSoilMap,
-    soilToFertilizerMap,
-    fertilizerToWaterMap,
-    waterToLightMap,
-    lightToTempMap,
-    tempToHumidityMap,
-    humidtyToLocationMap,
-  ]
-
-  const cache = {}
-
-  const locations = seeds.flatMap(seedRange => {
-    const results = []
-
-    for (let seed = seedRange.start; seed < seedRange.end; seed++) {
-      if (cache[seed] !== undefined) {
-        results.push(cache[seed])
-      }
-
-      let result = seed
-
-      for (const map of order) {
-        result = map.getNextKey(result)
-      }
-
-      cache[seed] = result
-      results.push(result)
+  let i = 0
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    let result = i
+    for (const map of maps) {
+      result = map.getValue(result)
     }
 
-    return results
-  })
+    for (const seedRange of seeds) {
+      if (seedRange.has(result)) return i
+    }
 
-  return Math.min(...locations)
+    i++
+  }
 }
 
 // console.log(solution1(data)) // 331445006
 
-// console.log(solution2(data))
+// console.log(solution2(data)) // 6472060
 
 module.exports = {
   solution1,
   solution2,
-  parseSection,
-  Range,
+  parseSection: parseMap,
 }

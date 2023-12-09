@@ -1,4 +1,4 @@
-const { solution1, solution2, parseSection, Range } = require('.')
+const { solution1, solution2, parseSection } = require('.')
 
 const input = `
 seeds: 79 14 55 13
@@ -50,31 +50,11 @@ test('parseSection', () => {
 seed-to-soil map:
 50 98 2
 52 50 48
-`,
-    'seed-to-soil map:'
+`
   )
 
-  expect(section.getNextKey(49)).toEqual(49)
-  expect(section.getNextKey(50)).toEqual(52)
-  expect(section.getNextKey(53)).toEqual(55)
-  expect(section.getNextKey(100)).toEqual(100)
-})
-
-describe('Range.intersection', () => {
-  test('overlap', () => {
-    const r1 = new Range(1, 10)
-    const r2 = new Range(6, 10)
-    const intersection = Range.intersection(r1, r2)
-
-    expect(intersection.start).toEqual(6)
-    expect(intersection.end).toEqual(10)
-  })
-
-  test('disjoint', () => {
-    const r1 = new Range(1, 5)
-    const r2 = new Range(10, 5)
-    const intersection = Range.intersection(r1, r2)
-
-    expect(intersection).toEqual(null)
-  })
+  expect(section.getValue(49)).toEqual(49)
+  expect(section.getValue(50)).toEqual(52)
+  expect(section.getValue(53)).toEqual(55)
+  expect(section.getValue(100)).toEqual(100)
 })
