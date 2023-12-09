@@ -147,5 +147,5 @@ function solution2(input) {
 module.exports = {
   solution1,
   solution2,
-  parseSection: parseMap,
+  parseMap,
 }
