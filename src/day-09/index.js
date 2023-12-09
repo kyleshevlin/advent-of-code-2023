@@ -14,11 +14,12 @@ const createHistory = str => {
     while (!currentSequence.every(n => n === 0)) {
       const clone = [...currentSequence]
       const nextSequence = []
-      let currentNum = clone.shift()
 
+      let currentNum = clone.shift()
       while (clone.length) {
         const nextNum = clone.shift()
         const diff = nextNum - currentNum
+
         nextSequence.push(diff)
         currentNum = nextNum
       }
@@ -46,21 +47,21 @@ const createHistory = str => {
 }
 
 function solution1(input) {
-  const lines = formatInput(input)
-  const histories = lines.map(createHistory)
-  const nextValues = histories.map(h => h.getNextRightValue())
+  const values = formatInput(input)
+    .map(createHistory)
+    .map(h => h.getNextRightValue())
 
-  return sum(nextValues)
+  return sum(values)
 }
 
 // console.log(solution1(data)) // 1666172641
 
 function solution2(input) {
-  const lines = formatInput(input)
-  const histories = lines.map(createHistory)
-  const nextValues = histories.map(h => h.getNextLeftValue())
+  const values = formatInput(input)
+    .map(createHistory)
+    .map(h => h.getNextLeftValue())
 
-  return sum(nextValues)
+  return sum(values)
 }
 
 // console.log(solution2(data)) // 933
