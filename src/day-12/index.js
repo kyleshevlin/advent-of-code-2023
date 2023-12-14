@@ -13,13 +13,14 @@ const formatInput = input =>
       return [springs, groupings]
     })
 
-function getCombos(length, current = '') {
-  if (length === 0) return [current]
+function* getCombos(length, current = '') {
+  if (length === 0) {
+    yield current
+    return
+  }
 
-  return [
-    ...getCombos(length - 1, current + '.'),
-    ...getCombos(length - 1, current + '#'),
-  ]
+  yield* getCombos(length - 1, current + '.')
+  yield* getCombos(length - 1, current + '#')
 }
 
 function isValid(spring, groupings) {
@@ -36,14 +37,13 @@ function findNumberOfPossibleArrangements(springs, groupings) {
   const unknowns = springs.split('').filter(c => c === '?').length
 
   // Make every possible combo of operational/broken you can for that many unknowns
-  const combos = getCombos(unknowns)
+  const comboGenerator = getCombos(unknowns)
 
   // Loop through the combos, replacing all the ?s with the chars of it
   // Check if it's valid. If so, add it to the count
-
   let result = 0
 
-  for (const combo of combos) {
+  for (const combo of comboGenerator) {
     const comboChars = combo.split('')
     const spring = springs
       .split('')

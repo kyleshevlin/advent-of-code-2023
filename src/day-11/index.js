@@ -1,4 +1,4 @@
-const { getInput, createStack, sum, getManhattanDistance } = require('../utils')
+const { getInput, sum, getManhattanDistance } = require('../utils')
 
 const data = getInput(__dirname)
 
