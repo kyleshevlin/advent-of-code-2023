@@ -24,24 +24,26 @@ function solution1(input) {
 
 // console.log(solution1(data)) // 514025
 
+const PATTERN = /(?<label>[a-z]+)(?<operator>-|=)(?<focalLength>[0-9]?)/
+
 function solution2(input) {
   const instructions = formatInput(input)
 
   const boxes = {}
 
   for (const instruction of instructions) {
-    const label = instruction.split(/=|-/).at(0)
+    const { label, operator, focalLength } = instruction.match(PATTERN).groups
     const key = hash(label)
 
     if (!boxes[key]) boxes[key] = []
 
-    if (instruction.includes('-')) {
+    if (operator === '-') {
       boxes[key] = boxes[key].filter(box => box.label !== label)
+      continue
     }
 
-    if (instruction.includes('=')) {
+    if (operator === '=') {
       const idx = boxes[key].findIndex(box => box.label === label)
-      const focalLength = instruction.split('=').at(1)
       const nextBox = { label, focalLength: Number(focalLength) }
 
       if (idx === -1) {
@@ -53,14 +55,11 @@ function solution2(input) {
     }
   }
 
-  const powers = []
-
-  for (const [boxNumber, lenses] of Object.entries(boxes)) {
-    for (const [idx, { focalLength }] of lenses.entries()) {
-      const value = (1 + Number(boxNumber)) * (idx + 1) * focalLength
-      powers.push(value)
-    }
-  }
+  const powers = Object.entries(boxes).flatMap(([boxNum, lenses]) =>
+    lenses.map(
+      ({ focalLength }, idx) => (1 + Number(boxNum)) * (idx + 1) * focalLength
+    )
+  )
 
   return sum(powers)
 }
