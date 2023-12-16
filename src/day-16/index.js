@@ -4,17 +4,6 @@ const data = getInput(__dirname)
 
 const formatInput = input => input.trim().split('\n')
 
-function visualize(grid, visited) {
-  const blank = grid.map(row => Array(row.length).fill('.'))
-
-  Object.keys(visited).forEach(key => {
-    const [row, col] = key.split(',')
-    blank[row][col] = '#'
-  })
-
-  return blank.map(row => row.join('')).join('\n')
-}
-
 function getNextBeams(beam, char) {
   const { row, col, dir } = beam
 
@@ -101,11 +90,10 @@ function getNextBeams(beam, char) {
   }
 }
 
-function solution1(input) {
-  const grid = formatInput(input)
+function getEnergized(grid, start) {
   const visited = {}
 
-  const beams = [{ row: 0, col: 0, dir: 'E' }]
+  const beams = [start]
   while (beams.length) {
     const beam = beams.shift()
     const { row, col, dir } = beam
@@ -128,14 +116,38 @@ function solution1(input) {
     beams.push(...getNextBeams(beam, char))
   }
 
-  // console.log(visualize(grid, visited))
-
   return Object.keys(visited).length
+}
+
+function solution1(input) {
+  const grid = formatInput(input)
+
+  return getEnergized(grid, { row: 0, col: 0, dir: 'E' })
 }
 
 // console.log(solution1(data)) // 7060
 
-function solution2(input) {}
+function solution2(input) {
+  const grid = formatInput(input)
+
+  const results = []
+
+  for (let r = 0; r < grid.length; r++) {
+    results.push(getEnergized(grid, { row: r, col: 0, dir: 'E' }))
+    results.push(
+      getEnergized(grid, { row: r, col: grid[0].length - 1, dir: 'W' })
+    )
+  }
+
+  for (let c = 0; c < grid[0].length; c++) {
+    results.push(getEnergized(grid, { row: 0, col: c, dir: 'S' }))
+    results.push(getEnergized(grid, { row: grid.length - 1, col: c, dir: 'N' }))
+  }
+
+  return Math.max(...results)
+}
+
+// console.log(solution2(data)) // 7493
 
 module.exports = {
   getNextBeams,
