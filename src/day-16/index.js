@@ -2,6 +2,8 @@ const { getInput } = require('../utils')
 
 const data = getInput(__dirname)
 
+// Note, I swapped all the `\` for `#` in the input to avoid dealing with
+// the escape character
 const formatInput = input => input.trim().split('\n')
 
 function getNextBeams(beam, char) {
