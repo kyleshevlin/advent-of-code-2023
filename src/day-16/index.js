@@ -2,9 +2,18 @@ const { getInput } = require('../utils')
 
 const data = getInput(__dirname)
 
-// Note, I swapped all the `\` for `#` in the input to avoid dealing with
-// the escape character
 const formatInput = input => input.trim().split('\n')
+
+function visualize(grid, visited) {
+  const blank = grid.map(row => Array(row.length).fill('.'))
+
+  Object.keys(visited).forEach(key => {
+    const [row, col] = key.split(',')
+    blank[row][col] = '#'
+  })
+
+  return blank.map(row => row.join('')).join('\n')
+}
 
 function getNextBeams(beam, char) {
   const { row, col, dir } = beam
@@ -74,7 +83,7 @@ function getNextBeams(beam, char) {
       }
     }
 
-    case '#': {
+    case '\\': {
       switch (dir) {
         case 'N':
           return [{ row, col: col - 1, dir: 'W' }]
@@ -116,17 +125,15 @@ function solution1(input) {
     // Mark the cell and direction as visited
     visited[key][dir] = true
 
-    const nextBeams = getNextBeams(beam, char)
-
-    nextBeams.forEach(b => {
-      beams.push(b)
-    })
+    beams.push(...getNextBeams(beam, char))
   }
+
+  // console.log(visualize(grid, visited))
 
   return Object.keys(visited).length
 }
 
-// console.log(solution1(data))
+// console.log(solution1(data)) // 7060
 
 function solution2(input) {}
 
