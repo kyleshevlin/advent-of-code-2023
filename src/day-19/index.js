@@ -51,7 +51,6 @@ function solution1(input) {
   })
 
   const accepted = []
-  const rejected = []
 
   items: for (const item of items) {
     let name = 'in'
@@ -70,7 +69,6 @@ function solution1(input) {
           }
 
           if (target === 'R') {
-            rejected.push(item)
             continue items
           }
 
@@ -85,7 +83,6 @@ function solution1(input) {
           }
 
           if (target === 'R') {
-            rejected.push(item)
             continue items
           }
 
