@@ -134,7 +134,6 @@ function fillGrid(grid, startRow, startCol) {
     }
   }
 
-  // TODO: This assumption doesn't work
   fill(startRow, startCol)
 
   return clone
@@ -150,13 +149,22 @@ function solution1(input) {
   const visited = dig(instructions)
   const normalized = normalizeVisited(visited)
   const perimeter = getPerimeter(normalized)
+
+  /**
+   * Making a bit of an assumption here, but since I normalized the grid to move
+   * the left most square to a c === 0, I am confident that I can assume the first
+   * row that starts with an '#' that we encounter is a corner. Given that in
+   * order to fill inner space we need to have inner space, we can probably safely
+   * assume that going 1 row further down and 1 column in from there, is the
+   * leftmost interior square of the loop.
+   */
   const firstRowIdx = perimeter.findIndex(row => row.at(0) === '#')
   const filled = fillGrid(perimeter, firstRowIdx + 1, 1)
 
   return filled.flatMap(row => row.filter(c => c === '#')).length
 }
 
-console.log(solution1(data))
+// console.log(solution1(data)) // 106459
 
 function solution2(input) {}
 
