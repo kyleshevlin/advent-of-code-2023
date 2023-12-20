@@ -135,7 +135,54 @@ function solution1(input) {
 
 // console.log(solution1(data)) // 806332748
 
-function solution2(input) {}
+function solution2(input) {
+  const mods = formatInput(input)
+  const modsByKey = mods.reduce((acc, m) => {
+    acc[m.key] = m
+    return acc
+  }, {})
+
+  const conjunctionKeys = new Set(
+    mods.filter(m => m.type === 'conjunction').map(m => m.key)
+  )
+
+  mods.forEach(m => {
+    m.destinations.forEach(d => {
+      if (conjunctionKeys.has(d)) modsByKey[d].addInput(m.key)
+    })
+  })
+
+  let count = 0
+  let rxLowPulseSent = false
+  while (!rxLowPulseSent) {
+    count++
+    const queue = createQueue()
+    queue.enqueue({ from: 'button', to: 'broadcaster', type: 'low' })
+
+    while (!queue.isEmpty()) {
+      const pulse = queue.dequeue()
+
+      if (pulse.to === 'rx' && pulse.type === 'low') {
+        rxLowPulseSent = true
+      }
+
+      const receiver = modsByKey[pulse.to]
+
+      // This is here for the second test case with `output`
+      if (!receiver) continue
+
+      const nextPulses = receiver.receive(pulse)
+
+      nextPulses.forEach(pulse => {
+        queue.enqueue(pulse)
+      })
+    }
+  }
+
+  return count
+}
+
+console.log(solution2(data))
 
 module.exports = {
   solution1,

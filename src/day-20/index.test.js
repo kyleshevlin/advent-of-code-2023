@@ -20,7 +20,3 @@ test('solution1', () => {
   expect(solution1(input)).toEqual(32000000)
   expect(solution1(input2)).toEqual(11687500)
 })
-
-test('solution2', () => {
-  expect(solution2(input)).toEqual()
-})
