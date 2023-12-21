@@ -26,61 +26,43 @@ const DIRECTIONS = [
 const makeKey = (r, c) => `${r},${c}`
 const decodeKey = key => key.split(',').map(Number)
 
-function bfs(grid, startRow, startCol, stepLimit) {
-  const visited = new Set()
-  const queue = createQueue()
-  queue.enqueue([startRow, startCol, 0])
+function fill(grid, startRow, startCol, stepLimit) {
+  let result = new Set()
+  result.add(makeKey(startRow, startCol))
 
   const isValid = (r, c) => {
     const char = grid?.[r]?.[c]
-
-    return char && char !== '#' && !visited.has(makeKey(r, c))
+    return char === '.' || char === 'S'
   }
 
-  while (!queue.isEmpty()) {
-    const [row, col, steps] = queue.dequeue()
+  for (let i = 0; i < stepLimit; i++) {
+    const nextResult = new Set()
 
-    for (const [dr, dc] of DIRECTIONS) {
-      const nextRow = row + dr
-      const nextCol = col + dc
-      const nextSteps = steps + 1
+    for (const key of result.values()) {
+      const [row, col] = decodeKey(key)
 
-      if (nextSteps > stepLimit) continue
+      for (const [dr, dc] of DIRECTIONS) {
+        const nextRow = row + dr
+        const nextCol = col + dc
 
-      if (isValid(nextRow, nextCol)) {
-        visited.add(makeKey(nextRow, nextCol))
-        queue.enqueue([nextRow, nextCol, steps + 1])
+        if (isValid(nextRow, nextCol)) {
+          nextResult.add(makeKey(nextRow, nextCol))
+        }
       }
     }
+
+    result = nextResult
   }
 
-  return visited
+  return result
 }
 
 function solution1(input, steps) {
   const grid = formatInput(input)
   const [startRow, startCol] = findStart(grid)
-  const searchResults = bfs(grid, startRow, startCol, steps)
+  const fillResults = fill(grid, startRow, startCol, steps)
 
-  return [...searchResults].filter(key => {
-    const [row, col] = decodeKey(key)
-    const diffRow = startRow - row
-    const diffCol = startCol - col
-
-    /**
-     * I'm not going to lie, I got this idea from Reddit. And it's still a bit
-     * difficult for me to describe or intuit how this works, but here's my best
-     * explanation.
-     *
-     * Any even number of steps taken below the `steps` input can be achieved with
-     * some amount of shuffling back and forth on two squares.
-     *
-     * Essentially, the same can be achieved for any odd number of steps by first
-     * stepping in the "wrong" direction and then following an "even" path to
-     * that square.
-     */
-    return (diffRow + diffCol) % 2 === steps % 2
-  }).length
+  return fillResults.size
 }
 
 // console.log(solution1(data, 64)) // 3768
