@@ -112,7 +112,7 @@ function solution1(input) {
 
   for (let i = 0; i < 1000; i++) {
     const queue = createQueue()
-    queue.enqueue({ from: 'button', to: 'broadcaster', type: 'low' })
+    queue.enqueue({ to: 'broadcaster', type: 'low' })
 
     while (!queue.isEmpty()) {
       const pulse = queue.dequeue()
@@ -157,7 +157,7 @@ function solution2(input) {
   while (!rxLowPulseSent) {
     count++
     const queue = createQueue()
-    queue.enqueue({ from: 'button', to: 'broadcaster', type: 'low' })
+    queue.enqueue({ to: 'broadcaster', type: 'low' })
 
     while (!queue.isEmpty()) {
       const pulse = queue.dequeue()
@@ -182,7 +182,7 @@ function solution2(input) {
   return count
 }
 
-console.log(solution2(data))
+// console.log(solution2(data))
 
 module.exports = {
   solution1,
