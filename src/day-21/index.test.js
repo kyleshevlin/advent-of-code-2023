@@ -1,9 +1,22 @@
 const { solution1, solution2 } = require('./')
 
-const input = `input data for day 21`
+const input = `
+...........
+...........
+.....###.#.
+.###.##..#.
+..#.#...#..
+....#.#....
+.##..S####.
+.##..#...#.
+.......##..
+.##.#.####.
+.##..##.##.
+...........
+`
 
 test('solution1', () => {
-  expect(solution1(input)).toEqual()
+  expect(solution1(input, 6)).toEqual(16)
 })
 
 test('solution2', () => {
