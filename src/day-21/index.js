@@ -27,8 +27,7 @@ const makeKey = (r, c) => `${r},${c}`
 const decodeKey = key => key.split(',').map(Number)
 
 function fill(grid, startRow, startCol, stepLimit) {
-  let result = new Set()
-  result.add(makeKey(startRow, startCol))
+  let result = new Set([makeKey(startRow, startCol)])
 
   const isValid = (r, c) => {
     const char = grid?.[r]?.[c]
