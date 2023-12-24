@@ -1,9 +1,17 @@
 const { solution1, solution2 } = require('./')
 
-const input = `input data for day 22`
+const input = `
+1,0,1~1,2,1
+0,0,2~2,0,2
+0,2,3~2,2,3
+0,0,4~0,2,4
+2,0,5~2,2,5
+0,1,6~2,1,6
+1,1,8~1,1,9
+`
 
 test('solution1', () => {
-  expect(solution1(input)).toEqual()
+  expect(solution1(input)).toEqual(5)
 })
 
 test('solution2', () => {
